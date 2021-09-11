@@ -17,13 +17,13 @@
 <body>
     <main class="container">
         <h1 class="generalTitle">Corona</h1>
-        <div class="wrapper-tabs">
-            <h2 class="wrapper-tabs__tabs">Ukraine</h2>
-            <h2 class="wrapper-tabs__tabs">World</h2>
+        <div class="wrapper-tabs" id="wrapperTabs">
+            <button class="wrapper-tabs__tabs active" data-region="Ukraine">Ukraine</>
+            <button class="wrapper-tabs__tabs" data-region="World">World</>
         </div>
-        <div class="wrapper-containerTab">
-            <div class="wrapper-containerTab__Ukraine active">Ukraine</div>
-            <div class="wrapper-containerTab__World">World</div>
+        <div class="wrapper-containerTab" id="wrapperContainerTabs">
+            <div class="wrapper-containerTab__Ukraine active_tab" id="Ukraine">Ukraine</div>
+            <div class="wrapper-containerTab__World" id="World">World</div>
         </div>
     </main>
     <script defer src="./js/app.js"></script>
