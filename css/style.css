@@ -228,6 +228,9 @@ dd {
 
 .wrapper-data__confirmed {
   color: yellow;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .wrapper-data__deaths {
