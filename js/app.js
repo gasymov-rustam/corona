@@ -43,9 +43,8 @@ function yesterdayFetchFromDataCenter(url) {
       yestardayWorldData = data.world;
       const [confirm, death, recover, existing] = createSmartKeyForDifferenceCount(ukraineData, yestardayUkraineData, keys);
       const abd = createSmartKeyForDifferenceCount(ukraineData, yestardayUkraineData, keys);
-      console.log(confirm);
       const bd = createSmartKeyForDifferenceCount(worldData, yestardayWorldData, keys);
-      renderCoronaData(wrapperUkraineEl, ukraineData, abd[0]);
+      renderCoronaData(wrapperUkraineEl, ukraineData, confirm);
       renderCoronaData(wrapperWorldEl, worldData, bd[0]);
     })
     .catch((error) => console.warn(error));
@@ -72,26 +71,30 @@ function yesterdayFetchFromDataCenter(url) {
 // }
 
 
-function renderCoronaData(elemForRender, dataArray, value) {
-  elemForRender.innerHTML = createDataArr(dataArray, value).join("");
+function renderCoronaData(elemForRender, dataArray, values) {
+  elemForRender.innerHTML = createDataArr(dataArray, values).join('');
 }
 
-function createDataArr(dataArray, value) {
-  return dataArray.map((field) => createDataField(field, value));
+function createDataArr(dataArray, values) {
+    return dataArray.map((field) => createDataField(field, values));
 }
 
-function createDataField(field, value) {
-  i++;
+function createDataField(field, values) {
   return `<dl class="wrapper-data">
             <dt class="wrapper-data__country">${field?.label?.uk}</dt>
             <dd class="wrapper-data__confirmed">
               ${field?.confirmed}
-              ${value[i]}
+              ${createDiferencesForm(values)}
             </dd>
             <dd class="wrapper-data__deaths">${field?.deaths}</dd>
             <dd class="wrapper-data__recovered">${field?.recovered}</dd>
             <dd class="wrapper-data__existing">${field?.existing}</dd>
           </dl>`;
+}
+
+function createDiferencesForm(values) {
+  i++;
+  return values[i];
 }
 
 
