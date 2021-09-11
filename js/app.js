@@ -41,15 +41,8 @@ function yesterdayFetchFromDataCenter(url) {
     .then((data) => {
       yestardayUkraineData = data.ukraine;
       yestardayWorldData = data.world;
-      const [confirm, death, recover, existing] = createSmartKeyForDifferenceCount(ukraineData, yestardayUkraineData, keys);
-      const bd = createSmartKeyForDifferenceCount(worldData, yestardayWorldData, keys);
-      renderCoronaData(wrapperUkraineEl, ukraineData, confirm);
-      renderCoronaData(wrapperUkraineEl, ukraineData, death);
-      renderCoronaData(wrapperUkraineEl, ukraineData, recover);
-      renderCoronaData(wrapperUkraineEl, ukraineData, existing);
-      renderCoronaData(wrapperWorldEl, worldData, bd[0]);
-      console.log(Array.isArray(bd[0]));
-      console.log(bd[0][0]);
+      renderCoronaData(wrapperUkraineEl, ukraineData, yestardayUkraineData);
+      renderCoronaData(wrapperWorldEl, worldData, yestardayWorldData);
     })
     .catch((error) => console.warn(error));
 }
@@ -75,37 +68,51 @@ function yesterdayFetchFromDataCenter(url) {
 // }
 
 
-function renderCoronaData(elemForRender, dataArray, values) {
-  elemForRender.innerHTML = createDataArr(dataArray, values).join('');
+function renderCoronaData(elemForRender, dataArray, dataArrayYestarday) {
+  elemForRender.innerHTML = createDataArr(dataArray, dataArrayYestarday);
 }
 
-function createDataArr(dataArray, values) {
-  
-    return dataArray.map((field) => createDataField(field, values));
+function createDataArr(dataArray, dataArrayYestarday) {
+  let fieldHtml = '';
+  for (let i = 0; i < dataArrayYestarday.length; i++) {
+    fieldHtml += createDataField(dataArray[i], dataArrayYestarday[i])
+  }
+  return fieldHtml;
 }
 
-function createDataField(field, values) {
-  if (i === 0) i = 0;
-  if (i < values.length) i++;
-  console.log(values.length);
-  if (i >= values.length) i = 0;
+function createDataField(field, fieldYestarday) {
+  // let confirmed = '';
+  // if (field?.confirmed > fieldYestarday?.confirmed){
+  //   confirmed = `<p><i class="fas fa-arrow-up"></i>${(field?.deaths - fieldYestarday?.deaths)}</p>`
+  // }
+  // if (field?.confirmed < fieldYestarday?.confirmed) {
+  //   confirmed = `<p><i class="fas fa-arrow-down"></i>${(field?.deaths - fieldYestarday?.deaths)}</p>`
+  // }
+  // if ((field?.confirmed - fieldYestarday?.confirmed) == 0){
+  //   console.log(123);
+  //   confirmed = `<p>${(field?.deaths - fieldYestarday?.deaths)}</p>`
+  // }
   return `<dl class="wrapper-data">
             <dt class="wrapper-data__country">${field?.label?.uk}</dt>
             <dd class="wrapper-data__confirmed">
-              ${field?.confirmed}
-              ${values[i]}
-            </dd>
-            <dd class="wrapper-data__deaths">${field?.deaths}</dd>
-            <dd class="wrapper-data__recovered">${field?.recovered}</dd>
-            <dd class="wrapper-data__existing">${field?.existing}</dd>
-          </dl>`;
+              <p>${field?.confirmed}</p>
+              ${((field?.confirmed - fieldYestarday?.confirmed) >= 0) ? `<p><i class="fas fa-arrow-up"></i>${(field?.confirmed - fieldYestarday?.confirmed)}</p>` : `<p><i class="fas fa-arrow-down"></i>${(field?.confirmed - fieldYestarday?.confirmed)}</p>`}
+            </dd >
+            <dd class="wrapper-data__deaths">
+              <p>${field?.deaths}</p>
+              ${((field?.deaths - fieldYestarday?.deaths) >= 0) ? `<p><i class="fas fa-arrow-up"></i>${(field?.deaths - fieldYestarday?.deaths)}</p>` : `<p><i class="fas fa-arrow-down"></i>${(field?.deaths - fieldYestarday?.deaths)}</p>`}
+            </dd >
+            <dd class="wrapper-data__recovered">
+              <p>${field?.recovered}</p>
+              ${((field?.recovered - fieldYestarday?.recovered) >= 0) ? `<p><i class="fas fa-arrow-up"></i>${(field?.recovered - fieldYestarday?.recovered)}</p>` : `<p><i class="fas fa-arrow-down"></i>${(field?.recovered - fieldYestarday?.recovered)}</p>`}
+            </dd >
+            <dd class="wrapper-data__existing">
+              <p>${field?.existing}</p>
+              ${((field?.existing - fieldYestarday?.existing) >= 0) ? `<p><i class="fas fa-arrow-up"></i>${(field?.existing - fieldYestarday?.existing)}</p>` : `<p><i class="fas fa-arrow-down"></i>${(field?.existing - fieldYestarday?.existing)}</p>`}
+            </dd >
+          </dl > `;
 }
 
-function createDiferencesForm(values) {
-  // ${createDiferencesForm(values)}
-  i++;
-  return values[i];
-}
 
 
 
@@ -122,26 +129,26 @@ function createDiferencesForm(values) {
 
 
 
-function createSmartKeyForDifferenceCount(dataArrayFirst, dataArraySecond, smartKeys) {
-  return smartKeys.map((smartKey) =>
-    createYestardayData(dataArrayFirst, dataArraySecond, smartKey)
-  );
-}
+// function createSmartKeyForDifferenceCount(dataArrayFirst, dataArraySecond, smartKeys) {
+//   return smartKeys.map((smartKey) =>
+//     createYestardayData(dataArrayFirst, dataArraySecond, smartKey)
+//   );
+// }
 
-function createYestardayData(dataArrayFirst, dataArraySecond, smartKey) {
-  let arrToday = dataArrayFirst.map((res) => res[smartKey]);
-  let arrYesterday = dataArraySecond.map((res) => res[smartKey]);
-  let newArr = [];
-  for (let i = 0; i < arrYesterday.length; i++) {
-    newArr.push(arrToday[i] - arrYesterday[i]);
-  }
-  return createDifferenceFieldsets(newArr);
-}
+// function createYestardayData(dataArrayFirst, dataArraySecond, smartKey) {
+//   let arrToday = dataArrayFirst.map((res) => res[smartKey]);
+//   let arrYesterday = dataArraySecond.map((res) => res[smartKey]);
+//   let newArr = [];
+//   for (let i = 0; i < arrYesterday.length; i++) {
+//     newArr.push(arrToday[i] - arrYesterday[i]);
+//   }
+//   return createDifferenceFieldsets(newArr);
+// }
 
-function createDifferenceFieldsets(fieldsets) {
-  return fieldsets.map((field) => createDifferenceField(field));
-}
+// function createDifferenceFieldsets(fieldsets) {
+//   return fieldsets.map((field) => createDifferenceField(field));
+// }
 
-function createDifferenceField(field) {
-  return `${field > 0 ? `<p><i class="fas fa-arrow-up"></i> ${field}</p>` : `<p><i class="fas fa-arrow-down"></i> ${field}</p>`}`;
-}
+// function createDifferenceField(field) {
+//   return `${field > 0 ? `<p><i class="fas fa-arrow-up"></i> ${field}</p>` : `<p><i class="fas fa-arrow-down"></i> ${field}</p>`} `;
+// }

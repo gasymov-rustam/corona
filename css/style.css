@@ -235,14 +235,23 @@ dd {
 
 .wrapper-data__deaths {
   color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .wrapper-data__recovered {
   color: green;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .wrapper-data__existing {
   color: red;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .searchForm {
