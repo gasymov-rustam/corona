@@ -22,8 +22,26 @@
             <button class="wrapper-tabs__tabs" data-region="World">World</>
         </div>
         <div class="wrapper-containerTab" id="wrapperContainerTabs">
-            <div class="wrapper-containerTab__Ukraine active_tab" id="Ukraine">Ukraine</div>
-            <div class="wrapper-containerTab__World" id="World">World</div>
+            <div class="wrapper-containerTab__Ukraine active_tab" id="Ukraine">
+                <dl class="wrapper-data">
+                    <dt class="wrapper-data__country">Kiev</dt>
+                    <dd class="wrapper-data__confirmed">1</dd>
+                    <dd class="wrapper-data__deaths">12</dd>
+                    <dd class="wrapper-data__recovered">123</dd>
+                    <dd class="wrapper-data__existing">1234</dd>
+                </dl>
+            </div>
+            <div class="wrapper-containerTab__World" id="World">
+                <div class="wrapper-containerTab__Ukraine active_tab" id="Ukraine">
+                    <dl class="wrapper-data">
+                        <dt class="wrapper-data__country">Kiev</dt>
+                        <dd class="wrapper-data__confirmed">1</dd>
+                        <dd class="wrapper-data__deaths">12</dd>
+                        <dd class="wrapper-data__recovered">123</dd>
+                        <dd class="wrapper-data__existing">1234</dd>
+                    </dl>
+                </div>
+            </div>
         </div>
     </main>
     <script defer src="./js/app.js"></script>

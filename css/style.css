@@ -184,7 +184,6 @@ table {
 
 .wrapper-containerTab {
   position: relative;
-  height: 500px;
   color: white;
 }
 
@@ -201,4 +200,44 @@ table {
 
 .active_tab {
   visibility: visible;
+}
+
+.wrapper-data {
+  display: flex;
+  border-bottom: 0.2px solid rgb(61, 61, 61);
+}
+
+.wrapper-data > dt,
+dd {
+  padding: 20px 10px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.wrapper-data > dd {
+  width: 40%;
+  justify-content: flex-end;
+  width: 15%;
+}
+
+.wrapper-data__country {
+  width: 40%;
+  color: darkgray;
+}
+
+.wrapper-data__confirmed {
+  color: yellow;
+}
+
+.wrapper-data__deaths {
+  color: white;
+}
+
+.wrapper-data__recovered {
+  color: green;
+}
+
+.wrapper-data__existing {
+  color: red;
 }
