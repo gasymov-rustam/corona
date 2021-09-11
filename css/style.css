@@ -244,3 +244,25 @@ dd {
 .wrapper-data__existing {
   color: red;
 }
+
+.searchForm {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  background: #292B33;
+}
+
+.searchForm__button {
+  width: 50px;
+  font-size: 34px;
+  padding: 8px;
+  color: blue;
+  background: #292B33;
+  /* border: none; */
+}
+
+.searchForm__button {
+  font-size: 18px;
+  flex-grow: 1;
+  outline: none;
+}
