@@ -205,6 +205,7 @@ table {
   visibility: visible;
 }
 
+.general-information,
 .wrapper-data {
   display: flex;
   border-bottom: 0.2px solid rgb(61, 61, 61);
@@ -235,6 +236,7 @@ dd {
   color: darkgray;
 }
 
+.general-information__confirmed,
 .wrapper-data__confirmed {
   color: yellow;
   display: flex;
@@ -242,6 +244,7 @@ dd {
   gap: 5px;
 }
 
+.general-information__deaths,
 .wrapper-data__deaths {
   color: white;
   display: flex;
@@ -249,6 +252,7 @@ dd {
   gap: 5px;
 }
 
+.general-information__recovered,
 .wrapper-data__recovered {
   color: green;
   display: flex;
@@ -256,6 +260,7 @@ dd {
   gap: 5px;
 }
 
+.general-information__existing,
 .wrapper-data__existing {
   color: red;
   display: flex;
@@ -291,5 +296,12 @@ dd {
   padding: 8px;
   background: #292B33;
   color: lightgray;
-
 }
+
+.general-information > div {
+  width: 25%;
+  font-size: 24px;
+  padding: 16px 8px;
+  gap: 10px;
+}
+

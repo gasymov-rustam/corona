@@ -35,6 +35,7 @@ function currentFetchFromDataCenter() {
     .then((data) => {
       ukraineData = data.ukraine;
       worldData = data.world;
+      console.log(ukraineData);
       renderCoronaData(wrapperUkraineEl, ukraineData, yestardayUkraineData);
       renderCoronaData(wrapperWorldEl, worldData, yestardayWorldData);
       yesterdayFetchFromDataCenter(`https://api-covid19.rnbo.gov.ua/data?to=${yestardayTime}`);
@@ -50,11 +51,32 @@ function yesterdayFetchFromDataCenter(url) {
       yestardayUkraineData = data.ukraine;
       yestardayWorldData = data.world;
       renderCoronaData(wrapperUkraineEl, ukraineData, yestardayUkraineData);
-      renderCoronaData(wrapperWorldEl, worldData, yestardayWorldData); 
+      renderCoronaData(wrapperWorldEl, worldData, yestardayWorldData);
+      console.log((createGeneralInformation(ukraineData, 'confirmed')))
     })
     .catch((error) => console.warn(error));
 }
 
+function createGeneralInformationDiference(dataArrayFirst, dataArraySecond, smartKey) {
+  let fieldHtml = '';
+  if (createGeneralInformation(dataArrayFirst, [smartKey]) > createGeneralInformation(dataArrayFirst, [smartKey])){
+    fieldHtml = `<p><i class="fas fa-arrow-up"></i>${(createGeneralInformation(dataArrayFirst, [smartKey]) - createGeneralInformation(dataArrayFirst, [smartKey]))}</p>`
+  }
+  if (createGeneralInformation(dataArrayFirst, [smartKey]) < createGeneralInformation(dataArrayFirst, [smartKey])) {
+    fieldHtml = `<p><i class="fas fa-arrow-down"></i>${(createGeneralInformation(dataArrayFirst, [smartKey]) - createGeneralInformation(dataArrayFirst, [smartKey]))}</p>`
+  }
+  if (createGeneralInformation(dataArrayFirst, [smartKey]) - createGeneralInformation(dataArrayFirst, [smartKey]) === 0) {
+    fieldHtml = '<p>didn`t changed</p>';
+  }
+  return fieldHtml;
+}
+
+function createGeneralInformation(dataArray, smartKey){
+  return dataArray.reduce((total, item) => {
+    total += item[smartKey]
+    return total;
+  }, 0)
+}
 
 
 
