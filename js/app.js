@@ -24,6 +24,8 @@ wrapperTabsEl.addEventListener("click", (e) => {
     const region = tab.dataset.region;
     Array.from(wrapperContainerTabsEl.children).forEach((tabPage) => tabPage.classList.remove("active_tab"));
     document.getElementById(region).classList.add("active_tab");
+    renderCoronaData(wrapperUkraineEl, ukraineData, yestardayUkraineData);
+    renderCoronaData(wrapperWorldEl, worldData, yestardayWorldData);
   }
 });
 
@@ -33,9 +35,8 @@ function currentFetchFromDataCenter() {
     .then((data) => {
       ukraineData = data.ukraine;
       worldData = data.world;
-      // console.log(ukraineData);
-      // renderCoronaData(wrapperUkraineEl, ukraineData, yestardayUkraineData);
-      // renderCoronaData(wrapperWorldEl, worldData, yestardayWorldData);
+      renderCoronaData(wrapperUkraineEl, ukraineData, yestardayUkraineData);
+      renderCoronaData(wrapperWorldEl, worldData, yestardayWorldData);
       yesterdayFetchFromDataCenter(`https://api-covid19.rnbo.gov.ua/data?to=${yestardayTime}`);
     })
     .catch((error) => console.warn(error));
@@ -57,28 +58,29 @@ function yesterdayFetchFromDataCenter(url) {
 
 
 
-// function renderCoronaDataFirst(elemForRender, dataArray) {
-//   elemForRender.innerHTML = createDataArr(dataArray);
-// }
+function renderCoronaDataFirst(elemForRender, dataArray) {
+  elemForRender.innerHTML = createDataArrFirst(dataArray).join('');
+}
 
-// function createDataArrFirst(dataArray) {
-//   return dataArray.map((field) => createDataField(field));
-// }
+function createDataArrFirst(dataArray) {
+  return dataArray.map((field) => createDataFieldFirst(field));
+}
 
-// function createDataFieldFirst(field) {
-//   return `<dl class="wrapper-data">
-//             <dt class="wrapper-data__country">${field?.label?.uk}</dt>
-//             <dd class="wrapper-data__confirmed">
-//               ${field?.confirmed}
-//             </dd>
-//             <dd class="wrapper-data__deaths">${field?.deaths}</dd>
-//             <dd class="wrapper-data__recovered">${field?.recovered}</dd>
-//             <dd class="wrapper-data__existing">${field?.existing}</dd>
-//           </dl>`;
-// }
+function createDataFieldFirst(field) {
+  return `<dl class="wrapper-data">
+            <dt class="wrapper-data__country">${field?.label?.uk}</dt>
+            <dd class="wrapper-data__confirmed">
+              ${field?.confirmed}
+            </dd>
+            <dd class="wrapper-data__deaths">${field?.deaths}</dd>
+            <dd class="wrapper-data__recovered">${field?.recovered}</dd>
+            <dd class="wrapper-data__existing">${field?.existing}</dd>
+          </dl>`;
+}
 
 function renderCoronaData(elemForRender, dataArray, dataArrayYestarday) {
-  elemForRender.innerHTML = createDataArr(dataArray, dataArrayYestarday);
+  if (dataArrayYestarday.length === 0) renderCoronaDataFirst(elemForRender, dataArray)
+  else elemForRender.innerHTML = createDataArr(dataArray, dataArrayYestarday);
 }
 
 function createDataArr(dataArray, dataArrayYestarday) {
@@ -160,11 +162,6 @@ searchFormEl.addEventListener('keyup', e=> {
       })
     })
   })
-
-  // let a = newUkraineSearchFilter.concat(newWorldSearchFilter)
-  // console.log(a);
-  // renderCoronaData(wrapperUkraineEl, newUkraineSearchFilter, newUkraineYesterdaySearchFilter);
-  // renderCoronaData(wrapperUkraineEl, newWorldSearchFilter, newWorldYesterdaySearchFilter);
 })
 
 searchFormEl.addEventListener('submit', e => {
