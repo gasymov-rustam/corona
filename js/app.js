@@ -9,7 +9,6 @@ let ukraineData = [];
 let worldData = [];
 let abdd = [];
 let yestardayConfirmed = 0;
-let i = -1, j = -1;
 
 wrapperTabsEl.addEventListener("click", (e) => {
   const tab = e.target.closest("button");
