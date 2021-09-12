@@ -2,12 +2,18 @@ const wrapperTabsEl = document.getElementById("wrapperTabs");
 const wrapperContainerTabsEl = document.getElementById("wrapperContainerTabs");
 const wrapperUkraineEl = document.getElementById("Ukraine");
 const wrapperWorldEl = document.getElementById("World");
+const searchFormEl = document.getElementById("searchFormEl");
 const keys = ["confirmed", "deaths", "recovered", "existing"];
 const currentTime = new Date(Date.now()).toISOString().slice(0, 10);
 const yestardayTime = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
 let ukraineData = [];
 let worldData = [];
-let abdd = [];
+let yestardayUkraineData = [];
+let yestardayWorldData = [];
+let newUkraineSearchFilter = [];
+let newWorldSearchFilter = [];
+let newUkraineYesterdaySearchFilter = [];
+let newWorldYesterdaySearchFilter = [];
 let yestardayConfirmed = 0;
 
 wrapperTabsEl.addEventListener("click", (e) => {
@@ -27,11 +33,13 @@ function currentFetchFromDataCenter() {
     .then((data) => {
       ukraineData = data.ukraine;
       worldData = data.world;
+      // console.log(ukraineData);
+      // renderCoronaData(wrapperUkraineEl, ukraineData, yestardayUkraineData);
+      // renderCoronaData(wrapperWorldEl, worldData, yestardayWorldData);
       yesterdayFetchFromDataCenter(`https://api-covid19.rnbo.gov.ua/data?to=${yestardayTime}`);
     })
     .catch((error) => console.warn(error));
 }
-
 currentFetchFromDataCenter();
 
 function yesterdayFetchFromDataCenter(url) {
@@ -40,28 +48,24 @@ function yesterdayFetchFromDataCenter(url) {
     .then((data) => {
       yestardayUkraineData = data.ukraine;
       yestardayWorldData = data.world;
-      const [confirm, death, recover, existing] = createSmartKeyForDifferenceCount(ukraineData, yestardayUkraineData, keys);
-      const bd = createSmartKeyForDifferenceCount(worldData, yestardayWorldData, keys);
-      renderCoronaData(wrapperUkraineEl, ukraineData, confirm);
-      renderCoronaData(wrapperUkraineEl, ukraineData, death);
-      renderCoronaData(wrapperUkraineEl, ukraineData, recover);
-      renderCoronaData(wrapperUkraineEl, ukraineData, existing);
-      renderCoronaData(wrapperWorldEl, worldData, bd[0]);
-      console.log(Array.isArray(bd[0]));
-      console.log(bd[0][0]);
+      renderCoronaData(wrapperUkraineEl, ukraineData, yestardayUkraineData);
+      renderCoronaData(wrapperWorldEl, worldData, yestardayWorldData); 
     })
     .catch((error) => console.warn(error));
 }
 
-// function renderCoronaData(elemForRender, dataArray) {
-//   elemForRender.innerHTML = createDataArr(dataArray).join("");
+
+
+
+// function renderCoronaDataFirst(elemForRender, dataArray) {
+//   elemForRender.innerHTML = createDataArr(dataArray);
 // }
 
-// function createDataArr(dataArray) {
+// function createDataArrFirst(dataArray) {
 //   return dataArray.map((field) => createDataField(field));
 // }
 
-// function createDataField(field) {
+// function createDataFieldFirst(field) {
 //   return `<dl class="wrapper-data">
 //             <dt class="wrapper-data__country">${field?.label?.uk}</dt>
 //             <dd class="wrapper-data__confirmed">
@@ -73,74 +77,139 @@ function yesterdayFetchFromDataCenter(url) {
 //           </dl>`;
 // }
 
-
-function renderCoronaData(elemForRender, dataArray, values) {
-  elemForRender.innerHTML = createDataArr(dataArray, values).join('');
+function renderCoronaData(elemForRender, dataArray, dataArrayYestarday) {
+  elemForRender.innerHTML = createDataArr(dataArray, dataArrayYestarday);
 }
 
-function createDataArr(dataArray, values) {
-  
-    return dataArray.map((field) => createDataField(field, values));
+function createDataArr(dataArray, dataArrayYestarday) {
+  let fieldHtml = '';
+  for (let i = 0; i < dataArrayYestarday.length; i++) {
+    fieldHtml += createDataField(dataArray[i], dataArrayYestarday[i])
+  }
+  return fieldHtml;
 }
 
-function createDataField(field, values) {
-  if (i === 0) i = 0;
-  if (i < values.length) i++;
-  console.log(values.length);
-  if (i >= values.length) i = 0;
+function createDataField(field, fieldYestarday) {
   return `<dl class="wrapper-data">
             <dt class="wrapper-data__country">${field?.label?.uk}</dt>
             <dd class="wrapper-data__confirmed">
-              ${field?.confirmed}
-              ${values[i]}
-            </dd>
-            <dd class="wrapper-data__deaths">${field?.deaths}</dd>
-            <dd class="wrapper-data__recovered">${field?.recovered}</dd>
-            <dd class="wrapper-data__existing">${field?.existing}</dd>
-          </dl>`;
+              <p>${field?.confirmed}</p>
+               ${fieldYestarday ? createArrows(field, fieldYestarday, 'confirmed') : ''}
+            </dd >
+            <dd class="wrapper-data__deaths">
+              <p>${field?.deaths}</p>
+               ${fieldYestarday ? createArrows(field, fieldYestarday, 'deaths') : ''}
+            </dd >
+            <dd class="wrapper-data__recovered">
+              <p>${field?.recovered}</p>
+               ${fieldYestarday ? createArrows(field, fieldYestarday, 'recovered') : ''}
+              </dd >
+            <dd class="wrapper-data__existing">
+              <p>${field?.existing}</p>
+              ${fieldYestarday ? createArrows(field, fieldYestarday, 'existing'):''}
+              </dd >
+          </dl > `;
 }
 
-function createDiferencesForm(values) {
-  // ${createDiferencesForm(values)}
-  i++;
-  return values[i];
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function createSmartKeyForDifferenceCount(dataArrayFirst, dataArraySecond, smartKeys) {
-  return smartKeys.map((smartKey) =>
-    createYestardayData(dataArrayFirst, dataArraySecond, smartKey)
-  );
-}
-
-function createYestardayData(dataArrayFirst, dataArraySecond, smartKey) {
-  let arrToday = dataArrayFirst.map((res) => res[smartKey]);
-  let arrYesterday = dataArraySecond.map((res) => res[smartKey]);
-  let newArr = [];
-  for (let i = 0; i < arrYesterday.length; i++) {
-    newArr.push(arrToday[i] - arrYesterday[i]);
+function createArrows(field, fieldYestarday, smartKey) {
+  let confirmed = '';
+  if (field[smartKey] > fieldYestarday[smartKey]) {
+    confirmed = `<p><i class="fas fa-arrow-up"></i>${(field[smartKey] - fieldYestarday[smartKey])}</p>`
   }
-  return createDifferenceFieldsets(newArr);
+  if (field[smartKey] < fieldYestarday[smartKey]) {
+    confirmed = `<p><i class="fas fa-arrow-down"></i>${(field[smartKey] - fieldYestarday[smartKey])}</p>`
+  }
+  if ((field[smartKey] - fieldYestarday[smartKey]) === 0) {
+    // confirmed = `<p>${(field[smartKey] - fieldYestarday[smartKey])}</p>`
+    confirmed = '<p>didn`t changed</p>';
+  }
+  return confirmed;
 }
 
-function createDifferenceFieldsets(fieldsets) {
-  return fieldsets.map((field) => createDifferenceField(field));
-}
+searchFormEl.addEventListener('keyup', e=> {
+  const query = e.target.value.trim().toLowerCase().split(' ').filter(word=>!!word);
+  const searchField = ['uk', 'en'];
+  newUkraineSearchFilter = ukraineData.filter(country => {
+    return query.every(word => {
+      return searchField.some(field => {
+        return String(country.label[field]).toLowerCase().includes(word)
+      })
+    })
+  })
 
-function createDifferenceField(field) {
-  return `${field > 0 ? `<p><i class="fas fa-arrow-up"></i> ${field}</p>` : `<p><i class="fas fa-arrow-down"></i> ${field}</p>`}`;
-}
+  newUkraineYesterdaySearchFilter = yestardayUkraineData.filter(country => {
+    return query.every(word => {
+      return searchField.some(field => {
+        return String(country.label[field]).toLowerCase().includes(word)
+      })
+    })
+  })
+
+  newWorldSearchFilter = worldData.filter(country => {
+    return query.every(word => {
+      return searchField.some(field => {
+        return String(country.label[field]).toLowerCase().includes(word)
+      })
+    })
+  })
+
+  newWorldYesterdaySearchFilter = yestardayWorldData.filter(country => {
+    return query.every(word => {
+      return searchField.some(field => {
+        return String(country.label[field]).toLowerCase().includes(word)
+      })
+    })
+  })
+
+  // let a = newUkraineSearchFilter.concat(newWorldSearchFilter)
+  // console.log(a);
+  // renderCoronaData(wrapperUkraineEl, newUkraineSearchFilter, newUkraineYesterdaySearchFilter);
+  // renderCoronaData(wrapperUkraineEl, newWorldSearchFilter, newWorldYesterdaySearchFilter);
+})
+
+searchFormEl.addEventListener('submit', e => {
+  e.preventDefault();
+  renderCoronaData(wrapperUkraineEl, newUkraineSearchFilter, newUkraineYesterdaySearchFilter);
+  renderCoronaData(wrapperWorldEl, newWorldSearchFilter, newWorldYesterdaySearchFilter);
+  e.target.reset();
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// function createSmartKeyForDifferenceCount(dataArrayFirst, dataArraySecond, smartKeys) {
+//   return smartKeys.map((smartKey) =>
+//     createYestardayData(dataArrayFirst, dataArraySecond, smartKey)
+//   );
+// }
+
+// function createYestardayData(dataArrayFirst, dataArraySecond, smartKey) {
+//   let arrToday = dataArrayFirst.map((res) => res[smartKey]);
+//   let arrYesterday = dataArraySecond.map((res) => res[smartKey]);
+//   let newArr = [];
+//   for (let i = 0; i < arrYesterday.length; i++) {
+//     newArr.push(arrToday[i] - arrYesterday[i]);
+//   }
+//   return createDifferenceFieldsets(newArr);
+// }
+
+// function createDifferenceFieldsets(fieldsets) {
+//   return fieldsets.map((field) => createDifferenceField(field));
+// }
+
+// function createDifferenceField(field) {
+//   return `${field > 0 ? `<p><i class="fas fa-arrow-up"></i> ${field}</p>` : `<p><i class="fas fa-arrow-down"></i> ${field}</p>`} `;
+// }
