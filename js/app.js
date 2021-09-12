@@ -7,7 +7,8 @@ const currentTime = new Date(Date.now()).toISOString().slice(0, 10);
 const yestardayTime = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
 let ukraineData = [];
 let worldData = [];
-let abdd = [];
+let yestardayUkraineData = [];
+let yestardayWorldData = [];
 let yestardayConfirmed = 0;
 
 wrapperTabsEl.addEventListener("click", (e) => {
@@ -27,11 +28,14 @@ function currentFetchFromDataCenter() {
     .then((data) => {
       ukraineData = data.ukraine;
       worldData = data.world;
+      
+      // renderCoronaDataFirst(wrapperUkraineEl, ukraineData);
+      // renderCoronaDataFirst(wrapperWorldEl, worldData);
       yesterdayFetchFromDataCenter(`https://api-covid19.rnbo.gov.ua/data?to=${yestardayTime}`);
+
     })
     .catch((error) => console.warn(error));
 }
-
 currentFetchFromDataCenter();
 
 function yesterdayFetchFromDataCenter(url) {
@@ -40,21 +44,25 @@ function yesterdayFetchFromDataCenter(url) {
     .then((data) => {
       yestardayUkraineData = data.ukraine;
       yestardayWorldData = data.world;
+     
       renderCoronaData(wrapperUkraineEl, ukraineData, yestardayUkraineData);
       renderCoronaData(wrapperWorldEl, worldData, yestardayWorldData);
+      
     })
     .catch((error) => console.warn(error));
 }
 
-// function renderCoronaData(elemForRender, dataArray) {
-//   elemForRender.innerHTML = createDataArr(dataArray).join("");
+
+
+// function renderCoronaDataFirst(elemForRender, dataArray) {
+//   elemForRender.innerHTML = createDataArr(dataArray);
 // }
 
-// function createDataArr(dataArray) {
+// function createDataArrFirst(dataArray) {
 //   return dataArray.map((field) => createDataField(field));
 // }
 
-// function createDataField(field) {
+// function createDataFieldFirst(field) {
 //   return `<dl class="wrapper-data">
 //             <dt class="wrapper-data__country">${field?.label?.uk}</dt>
 //             <dd class="wrapper-data__confirmed">
@@ -65,7 +73,6 @@ function yesterdayFetchFromDataCenter(url) {
 //             <dd class="wrapper-data__existing">${field?.existing}</dd>
 //           </dl>`;
 // }
-
 
 function renderCoronaData(elemForRender, dataArray, dataArrayYestarday) {
   elemForRender.innerHTML = createDataArr(dataArray, dataArrayYestarday);
@@ -80,36 +87,40 @@ function createDataArr(dataArray, dataArrayYestarday) {
 }
 
 function createDataField(field, fieldYestarday) {
-  // let confirmed = '';
-  // if (field?.confirmed > fieldYestarday?.confirmed){
-  //   confirmed = `<p><i class="fas fa-arrow-up"></i>${(field?.deaths - fieldYestarday?.deaths)}</p>`
-  // }
-  // if (field?.confirmed < fieldYestarday?.confirmed) {
-  //   confirmed = `<p><i class="fas fa-arrow-down"></i>${(field?.deaths - fieldYestarday?.deaths)}</p>`
-  // }
-  // if ((field?.confirmed - fieldYestarday?.confirmed) == 0){
-  //   console.log(123);
-  //   confirmed = `<p>${(field?.deaths - fieldYestarday?.deaths)}</p>`
-  // }
   return `<dl class="wrapper-data">
             <dt class="wrapper-data__country">${field?.label?.uk}</dt>
             <dd class="wrapper-data__confirmed">
               <p>${field?.confirmed}</p>
-              ${((field?.confirmed - fieldYestarday?.confirmed) >= 0) ? `<p><i class="fas fa-arrow-up"></i>${(field?.confirmed - fieldYestarday?.confirmed)}</p>` : `<p><i class="fas fa-arrow-down"></i>${(field?.confirmed - fieldYestarday?.confirmed)}</p>`}
+               ${fieldYestarday ? createArrows(field, fieldYestarday, 'confirmed') : ''}
             </dd >
             <dd class="wrapper-data__deaths">
               <p>${field?.deaths}</p>
-              ${((field?.deaths - fieldYestarday?.deaths) >= 0) ? `<p><i class="fas fa-arrow-up"></i>${(field?.deaths - fieldYestarday?.deaths)}</p>` : `<p><i class="fas fa-arrow-down"></i>${(field?.deaths - fieldYestarday?.deaths)}</p>`}
+               ${fieldYestarday ? createArrows(field, fieldYestarday, 'deaths') : ''}
             </dd >
             <dd class="wrapper-data__recovered">
               <p>${field?.recovered}</p>
-              ${((field?.recovered - fieldYestarday?.recovered) >= 0) ? `<p><i class="fas fa-arrow-up"></i>${(field?.recovered - fieldYestarday?.recovered)}</p>` : `<p><i class="fas fa-arrow-down"></i>${(field?.recovered - fieldYestarday?.recovered)}</p>`}
-            </dd >
+               ${fieldYestarday ? createArrows(field, fieldYestarday, 'recovered') : ''}
+              </dd >
             <dd class="wrapper-data__existing">
               <p>${field?.existing}</p>
-              ${((field?.existing - fieldYestarday?.existing) >= 0) ? `<p><i class="fas fa-arrow-up"></i>${(field?.existing - fieldYestarday?.existing)}</p>` : `<p><i class="fas fa-arrow-down"></i>${(field?.existing - fieldYestarday?.existing)}</p>`}
-            </dd >
+              ${fieldYestarday ? createArrows(field, fieldYestarday, 'existing'):''}
+              </dd >
           </dl > `;
+}
+
+function createArrows(field, fieldYestarday, smartKey) {
+  let confirmed = '';
+  if (field[smartKey] > fieldYestarday[smartKey]) {
+    confirmed = `<p><i class="fas fa-arrow-up"></i>${(field[smartKey] - fieldYestarday[smartKey])}</p>`
+  }
+  if (field[smartKey] < fieldYestarday[smartKey]) {
+    confirmed = `<p><i class="fas fa-arrow-down"></i>${(field[smartKey] - fieldYestarday[smartKey])}</p>`
+  }
+  if ((field[smartKey] - fieldYestarday[smartKey]) === 0) {
+    // confirmed = `<p>${(field[smartKey] - fieldYestarday[smartKey])}</p>`
+    confirmed = '<p>didn`t changed</p>';
+  }
+  return confirmed;
 }
 
 
