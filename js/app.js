@@ -3,6 +3,8 @@ const wrapperContainerTabsEl = document.getElementById("wrapperContainerTabs");
 const wrapperUkraineEl = document.getElementById("Ukraine");
 const wrapperWorldEl = document.getElementById("World");
 const searchFormEl = document.getElementById("searchFormEl");
+const generalInformationUkraineEl = document.getElementById("generalInformationUkraine")
+const generalInformationWorldEl = document.getElementById("generalInformationWorld")
 const keys = ["confirmed", "deaths", "recovered", "existing"];
 const currentTime = new Date(Date.now()).toISOString().slice(0, 10);
 const yestardayTime = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
@@ -35,10 +37,9 @@ function currentFetchFromDataCenter() {
     .then((data) => {
       ukraineData = data.ukraine;
       worldData = data.world;
-      console.log(ukraineData);
-      renderCoronaData(wrapperUkraineEl, ukraineData, yestardayUkraineData);
-      renderCoronaData(wrapperWorldEl, worldData, yestardayWorldData);
       yesterdayFetchFromDataCenter(`https://api-covid19.rnbo.gov.ua/data?to=${yestardayTime}`);
+      // renderCoronaData(wrapperUkraineEl, ukraineData, yestardayUkraineData);
+      // renderCoronaData(wrapperWorldEl, worldData, yestardayWorldData);
     })
     .catch((error) => console.warn(error));
 }
@@ -52,21 +53,49 @@ function yesterdayFetchFromDataCenter(url) {
       yestardayWorldData = data.world;
       renderCoronaData(wrapperUkraineEl, ukraineData, yestardayUkraineData);
       renderCoronaData(wrapperWorldEl, worldData, yestardayWorldData);
-      console.log((createGeneralInformation(ukraineData, 'confirmed')))
+      renderToHtmlGeneralInformation(generalInformationUkraineEl, ukraineData, yestardayUkraineData)
+      renderToHtmlGeneralInformation(generalInformationWorldEl, worldData, yestardayWorldData)
     })
     .catch((error) => console.warn(error));
 }
 
-function createGeneralInformationDiference(dataArrayFirst, dataArraySecond, smartKey) {
+function renderToHtmlGeneralInformation(element, dataArrayFirst, dataArraySecond){
+  element.insertAdjacentHTML('afterbegin', createHtmlGeneralInformation(dataArrayFirst, dataArraySecond));
+}
+
+function createHtmlGeneralInformation(dataArrayFirst, dataArraySecond){
+  return `<div class="general-information__confirmed">
+                <p>Виявлено:</p>
+                <p>${createGeneralInformation(dataArrayFirst, 'confirmed')}</p>
+                ${createGeneralInformationDifference(dataArrayFirst, dataArraySecond, 'confirmed') ? createGeneralInformationDifference(dataArrayFirst, dataArraySecond, 'confirmed') : ''}
+            </div>
+            <div class="general-information__deaths">
+                <p>Померло:</p>
+                <p>${createGeneralInformation(dataArrayFirst, 'deaths')}</p>
+                ${createGeneralInformationDifference(dataArrayFirst, dataArraySecond, 'deaths') ? createGeneralInformationDifference(dataArrayFirst, dataArraySecond, 'deaths'): ''}
+            </div>
+            <div class="general-information__recovered">
+                <p>Одужали:</p>
+                <p>${createGeneralInformation(dataArrayFirst, 'recovered')}</p>
+                ${createGeneralInformationDifference(dataArrayFirst, dataArraySecond, 'recovered') ? createGeneralInformationDifference(dataArrayFirst, dataArraySecond, 'recovered'): ''}
+            </div>
+            <div class="general-information__existing">
+                <p>Выздровили:</p>
+                <p>${createGeneralInformation(dataArrayFirst, 'existing')}</p>
+                ${createGeneralInformationDifference(dataArrayFirst, dataArraySecond, 'existing') ? createGeneralInformationDifference(dataArrayFirst, dataArraySecond, 'existing') : ''}
+            </div>`
+}
+
+function createGeneralInformationDifference(dataArrayFirst, dataArraySecond, smartKey) {
   let fieldHtml = '';
-  if (createGeneralInformation(dataArrayFirst, [smartKey]) > createGeneralInformation(dataArrayFirst, [smartKey])){
-    fieldHtml = `<p><i class="fas fa-arrow-up"></i>${(createGeneralInformation(dataArrayFirst, [smartKey]) - createGeneralInformation(dataArrayFirst, [smartKey]))}</p>`
+  if (createGeneralInformation(dataArrayFirst, [smartKey]) > createGeneralInformation(dataArraySecond, [smartKey])){
+    fieldHtml = `<p class="general-information__differnce"><i class="fas fa-arrow-up"></i> ${(createGeneralInformation(dataArrayFirst, [smartKey])) - (createGeneralInformation(dataArraySecond, [smartKey]))}</p>`
   }
-  if (createGeneralInformation(dataArrayFirst, [smartKey]) < createGeneralInformation(dataArrayFirst, [smartKey])) {
-    fieldHtml = `<p><i class="fas fa-arrow-down"></i>${(createGeneralInformation(dataArrayFirst, [smartKey]) - createGeneralInformation(dataArrayFirst, [smartKey]))}</p>`
+  if (createGeneralInformation(dataArrayFirst, [smartKey]) < createGeneralInformation(dataArraySecond, [smartKey])) {
+    fieldHtml = `<p class="general-information__differnce"><i class="fas fa-arrow-down"></i> ${(createGeneralInformation(dataArrayFirst, [smartKey])) - (createGeneralInformation(dataArraySecond, [smartKey]))}</p>`
   }
-  if (createGeneralInformation(dataArrayFirst, [smartKey]) - createGeneralInformation(dataArrayFirst, [smartKey]) === 0) {
-    fieldHtml = '<p>didn`t changed</p>';
+  if (createGeneralInformation(dataArrayFirst, [smartKey]) - createGeneralInformation(dataArraySecond, [smartKey]) === 0) {
+    fieldHtml = '<p class="general-information__differnce">-</p>';
   }
   return fieldHtml;
 }
@@ -78,10 +107,8 @@ function createGeneralInformation(dataArray, smartKey){
   }, 0)
 }
 
-
-
 function renderCoronaDataFirst(elemForRender, dataArray) {
-  elemForRender.innerHTML = createDataArrFirst(dataArray).join('');
+  elemForRender.insertAdjacentHTML('beforeend', createDataArrFirst(dataArray).join(''));
 }
 
 function createDataArrFirst(dataArray) {
@@ -102,7 +129,7 @@ function createDataFieldFirst(field) {
 
 function renderCoronaData(elemForRender, dataArray, dataArrayYestarday) {
   if (dataArrayYestarday.length === 0) renderCoronaDataFirst(elemForRender, dataArray)
-  else elemForRender.innerHTML = createDataArr(dataArray, dataArrayYestarday);
+  else elemForRender.insertAdjacentHTML('beforeend', createDataArr(dataArray, dataArrayYestarday));
 }
 
 function createDataArr(dataArray, dataArrayYestarday) {
@@ -145,7 +172,7 @@ function createArrows(field, fieldYestarday, smartKey) {
   }
   if ((field[smartKey] - fieldYestarday[smartKey]) === 0) {
     // confirmed = `<p>${(field[smartKey] - fieldYestarday[smartKey])}</p>`
-    confirmed = '<p>didn`t changed</p>';
+    confirmed = '<p>-</p>';
   }
   return confirmed;
 }

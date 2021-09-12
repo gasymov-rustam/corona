@@ -300,8 +300,12 @@ dd {
 
 .general-information > div {
   width: 25%;
-  font-size: 24px;
+  font-size: 20px;
   padding: 16px 8px;
   gap: 10px;
+}
+
+.general-information__differnce {
+  font-size: 14px;
 }
 
