@@ -2,6 +2,7 @@ const wrapperTabsEl = document.getElementById("wrapperTabs");
 const wrapperContainerTabsEl = document.getElementById("wrapperContainerTabs");
 const wrapperUkraineEl = document.getElementById("Ukraine");
 const wrapperWorldEl = document.getElementById("World");
+const searchFormEl = document.getElementById("searchFormEl");
 const keys = ["confirmed", "deaths", "recovered", "existing"];
 const currentTime = new Date(Date.now()).toISOString().slice(0, 10);
 const yestardayTime = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
@@ -28,11 +29,9 @@ function currentFetchFromDataCenter() {
     .then((data) => {
       ukraineData = data.ukraine;
       worldData = data.world;
-      
-      // renderCoronaDataFirst(wrapperUkraineEl, ukraineData);
-      // renderCoronaDataFirst(wrapperWorldEl, worldData);
+      // renderCoronaData(wrapperUkraineEl, ukraineData, yestardayUkraineData);
+      // renderCoronaData(wrapperWorldEl, worldData, yestardayWorldData);
       yesterdayFetchFromDataCenter(`https://api-covid19.rnbo.gov.ua/data?to=${yestardayTime}`);
-
     })
     .catch((error) => console.warn(error));
 }
@@ -44,13 +43,12 @@ function yesterdayFetchFromDataCenter(url) {
     .then((data) => {
       yestardayUkraineData = data.ukraine;
       yestardayWorldData = data.world;
-     
       renderCoronaData(wrapperUkraineEl, ukraineData, yestardayUkraineData);
-      renderCoronaData(wrapperWorldEl, worldData, yestardayWorldData);
-      
+      renderCoronaData(wrapperWorldEl, worldData, yestardayWorldData); 
     })
     .catch((error) => console.warn(error));
 }
+
 
 
 
@@ -122,6 +120,12 @@ function createArrows(field, fieldYestarday, smartKey) {
   }
   return confirmed;
 }
+
+searchFormEl.addEventListener('keydown', e=> {
+  const query = e.target.value.trim().toLowerCase().split(' ').filter(word=>!!word);
+  
+  console.log(query);
+})
 
 
 
