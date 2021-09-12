@@ -10,6 +10,10 @@ let ukraineData = [];
 let worldData = [];
 let yestardayUkraineData = [];
 let yestardayWorldData = [];
+let newUkraineSearchFilter = [];
+let newWorldSearchFilter = [];
+let newUkraineYesterdaySearchFilter = [];
+let newWorldYesterdaySearchFilter = [];
 let yestardayConfirmed = 0;
 
 wrapperTabsEl.addEventListener("click", (e) => {
@@ -29,6 +33,7 @@ function currentFetchFromDataCenter() {
     .then((data) => {
       ukraineData = data.ukraine;
       worldData = data.world;
+      // console.log(ukraineData);
       // renderCoronaData(wrapperUkraineEl, ukraineData, yestardayUkraineData);
       // renderCoronaData(wrapperWorldEl, worldData, yestardayWorldData);
       yesterdayFetchFromDataCenter(`https://api-covid19.rnbo.gov.ua/data?to=${yestardayTime}`);
@@ -121,10 +126,52 @@ function createArrows(field, fieldYestarday, smartKey) {
   return confirmed;
 }
 
-searchFormEl.addEventListener('keydown', e=> {
+searchFormEl.addEventListener('keyup', e=> {
   const query = e.target.value.trim().toLowerCase().split(' ').filter(word=>!!word);
-  
-  console.log(query);
+  const searchField = ['uk', 'en'];
+  newUkraineSearchFilter = ukraineData.filter(country => {
+    return query.every(word => {
+      return searchField.some(field => {
+        return String(country.label[field]).toLowerCase().includes(word)
+      })
+    })
+  })
+
+  newUkraineYesterdaySearchFilter = yestardayUkraineData.filter(country => {
+    return query.every(word => {
+      return searchField.some(field => {
+        return String(country.label[field]).toLowerCase().includes(word)
+      })
+    })
+  })
+
+  newWorldSearchFilter = worldData.filter(country => {
+    return query.every(word => {
+      return searchField.some(field => {
+        return String(country.label[field]).toLowerCase().includes(word)
+      })
+    })
+  })
+
+  newWorldYesterdaySearchFilter = yestardayWorldData.filter(country => {
+    return query.every(word => {
+      return searchField.some(field => {
+        return String(country.label[field]).toLowerCase().includes(word)
+      })
+    })
+  })
+
+  // let a = newUkraineSearchFilter.concat(newWorldSearchFilter)
+  // console.log(a);
+  // renderCoronaData(wrapperUkraineEl, newUkraineSearchFilter, newUkraineYesterdaySearchFilter);
+  // renderCoronaData(wrapperUkraineEl, newWorldSearchFilter, newWorldYesterdaySearchFilter);
+})
+
+searchFormEl.addEventListener('submit', e => {
+  e.preventDefault();
+  renderCoronaData(wrapperUkraineEl, newUkraineSearchFilter, newUkraineYesterdaySearchFilter);
+  renderCoronaData(wrapperWorldEl, newWorldSearchFilter, newWorldYesterdaySearchFilter);
+  e.target.reset();
 })
 
 
