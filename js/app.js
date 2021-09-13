@@ -39,7 +39,7 @@ function currentFetchFromDataCenter() {
     .then((data) => {
       ukraineData = data.ukraine;
       worldData = data.world;
-      yesterdayFetchFromDataCenter(`https://api-covid19.rn1bo.gov.ua/data?to=${yestardayTime}`);
+      yesterdayFetchFromDataCenter(`https://api-covid19.rnbo.gov.ua/data?to=${yestardayTime}`);
       renderCoronaData(renderUkraineEl, ukraineData, yestardayUkraineData);
       renderCoronaData(renderWorldEl, worldData, yestardayWorldData);
       renderToHtmlGeneralInformation(generalInformationUkraineEl, ukraineData, yestardayUkraineData)
