@@ -2,6 +2,8 @@ const wrapperTabsEl = document.getElementById("wrapperTabs");
 const wrapperContainerTabsEl = document.getElementById("wrapperContainerTabs");
 const wrapperUkraineEl = document.getElementById("Ukraine");
 const wrapperWorldEl = document.getElementById("World");
+const renderUkraineEl = document.getElementById("renderUkraineEl");
+const renderWorldEl = document.getElementById("renderWorldEl");
 const searchFormEl = document.getElementById("searchFormEl");
 const generalInformationUkraineEl = document.getElementById("generalInformationUkraine")
 const generalInformationWorldEl = document.getElementById("generalInformationWorld")
@@ -26,8 +28,8 @@ wrapperTabsEl.addEventListener("click", (e) => {
     const region = tab.dataset.region;
     Array.from(wrapperContainerTabsEl.children).forEach((tabPage) => tabPage.classList.remove("active_tab"));
     document.getElementById(region).classList.add("active_tab");
-    renderCoronaData(wrapperUkraineEl, ukraineData, yestardayUkraineData);
-    renderCoronaData(wrapperWorldEl, worldData, yestardayWorldData);
+    renderCoronaData(renderUkraineEl, ukraineData, yestardayUkraineData);
+    renderCoronaData(renderWorldEl, worldData, yestardayWorldData);
   }
 });
 
@@ -37,9 +39,11 @@ function currentFetchFromDataCenter() {
     .then((data) => {
       ukraineData = data.ukraine;
       worldData = data.world;
-      yesterdayFetchFromDataCenter(`https://api-covid19.rnbo.gov.ua/data?to=${yestardayTime}`);
-      // renderCoronaData(wrapperUkraineEl, ukraineData, yestardayUkraineData);
-      // renderCoronaData(wrapperWorldEl, worldData, yestardayWorldData);
+      yesterdayFetchFromDataCenter(`https://api-covid19.rn1bo.gov.ua/data?to=${yestardayTime}`);
+      renderCoronaData(renderUkraineEl, ukraineData, yestardayUkraineData);
+      renderCoronaData(renderWorldEl, worldData, yestardayWorldData);
+      renderToHtmlGeneralInformation(generalInformationUkraineEl, ukraineData, yestardayUkraineData)
+      renderToHtmlGeneralInformation(generalInformationWorldEl, worldData, yestardayWorldData)
     })
     .catch((error) => console.warn(error));
 }
@@ -51,20 +55,38 @@ function yesterdayFetchFromDataCenter(url) {
     .then((data) => {
       yestardayUkraineData = data.ukraine;
       yestardayWorldData = data.world;
-      renderCoronaData(wrapperUkraineEl, ukraineData, yestardayUkraineData);
-      renderCoronaData(wrapperWorldEl, worldData, yestardayWorldData);
+      renderCoronaData(renderUkraineEl, ukraineData, yestardayUkraineData);
+      renderCoronaData(renderWorldEl, worldData, yestardayWorldData);
       renderToHtmlGeneralInformation(generalInformationUkraineEl, ukraineData, yestardayUkraineData)
       renderToHtmlGeneralInformation(generalInformationWorldEl, worldData, yestardayWorldData)
     })
     .catch((error) => console.warn(error));
 }
 
-function renderToHtmlGeneralInformation(element, dataArrayFirst, dataArraySecond){
-  element.insertAdjacentHTML('afterbegin', createHtmlGeneralInformation(dataArrayFirst, dataArraySecond));
+function renderToHtmlGeneralInformation(element, dataArrayFirst, dataArraySecond) {
+  element.innerHTML = createHtmlGeneralInformation(dataArrayFirst, dataArraySecond);
 }
 
-function createHtmlGeneralInformation(dataArrayFirst, dataArraySecond){
-  return `<div class="general-information__confirmed">
+function createHtmlGeneralInformation(dataArrayFirst, dataArraySecond) {
+  if (dataArraySecond.length === 0) {
+    return `<div class="general-information__confirmed">
+                <p>Виявлено:</p>
+                <p>${createGeneralInformation(dataArrayFirst, 'confirmed')}</p>
+            </div>
+            <div class="general-information__deaths">
+                <p>Померло:</p>
+                <p>${createGeneralInformation(dataArrayFirst, 'deaths')}</p>
+            </div>
+            <div class="general-information__recovered">
+                <p>Одужали:</p>
+                <p>${createGeneralInformation(dataArrayFirst, 'recovered')}</p>
+            </div>
+            <div class="general-information__existing">
+                <p>Выздровили:</p>
+                <p>${createGeneralInformation(dataArrayFirst, 'existing')}</p>
+            </div>`
+  } else {
+    return `<div class="general-information__confirmed">
                 <p>Виявлено:</p>
                 <p>${createGeneralInformation(dataArrayFirst, 'confirmed')}</p>
                 ${createGeneralInformationDifference(dataArrayFirst, dataArraySecond, 'confirmed') ? createGeneralInformationDifference(dataArrayFirst, dataArraySecond, 'confirmed') : ''}
@@ -72,23 +94,24 @@ function createHtmlGeneralInformation(dataArrayFirst, dataArraySecond){
             <div class="general-information__deaths">
                 <p>Померло:</p>
                 <p>${createGeneralInformation(dataArrayFirst, 'deaths')}</p>
-                ${createGeneralInformationDifference(dataArrayFirst, dataArraySecond, 'deaths') ? createGeneralInformationDifference(dataArrayFirst, dataArraySecond, 'deaths'): ''}
+                ${createGeneralInformationDifference(dataArrayFirst, dataArraySecond, 'deaths') ? createGeneralInformationDifference(dataArrayFirst, dataArraySecond, 'deaths') : ''}
             </div>
             <div class="general-information__recovered">
                 <p>Одужали:</p>
                 <p>${createGeneralInformation(dataArrayFirst, 'recovered')}</p>
-                ${createGeneralInformationDifference(dataArrayFirst, dataArraySecond, 'recovered') ? createGeneralInformationDifference(dataArrayFirst, dataArraySecond, 'recovered'): ''}
+                ${createGeneralInformationDifference(dataArrayFirst, dataArraySecond, 'recovered') ? createGeneralInformationDifference(dataArrayFirst, dataArraySecond, 'recovered') : ''}
             </div>
             <div class="general-information__existing">
                 <p>Выздровили:</p>
                 <p>${createGeneralInformation(dataArrayFirst, 'existing')}</p>
                 ${createGeneralInformationDifference(dataArrayFirst, dataArraySecond, 'existing') ? createGeneralInformationDifference(dataArrayFirst, dataArraySecond, 'existing') : ''}
             </div>`
+  }
 }
 
 function createGeneralInformationDifference(dataArrayFirst, dataArraySecond, smartKey) {
   let fieldHtml = '';
-  if (createGeneralInformation(dataArrayFirst, [smartKey]) > createGeneralInformation(dataArraySecond, [smartKey])){
+  if (createGeneralInformation(dataArrayFirst, [smartKey]) > createGeneralInformation(dataArraySecond, [smartKey])) {
     fieldHtml = `<p class="general-information__differnce"><i class="fas fa-arrow-up"></i> ${(createGeneralInformation(dataArrayFirst, [smartKey])) - (createGeneralInformation(dataArraySecond, [smartKey]))}</p>`
   }
   if (createGeneralInformation(dataArrayFirst, [smartKey]) < createGeneralInformation(dataArraySecond, [smartKey])) {
@@ -100,15 +123,24 @@ function createGeneralInformationDifference(dataArrayFirst, dataArraySecond, sma
   return fieldHtml;
 }
 
-function createGeneralInformation(dataArray, smartKey){
+function createGeneralInformation(dataArray, smartKey) {
   return dataArray.reduce((total, item) => {
     total += item[smartKey]
     return total;
   }, 0)
 }
 
+
+
+
+
+
+
+
+
 function renderCoronaDataFirst(elemForRender, dataArray) {
-  elemForRender.insertAdjacentHTML('beforeend', createDataArrFirst(dataArray).join(''));
+  // elemForRender.insertAdjacentHTML('beforeend', createDataArrFirst(dataArray).join(''));
+  elemForRender.innerHTML = createDataArrFirst(dataArray).join('');
 }
 
 function createDataArrFirst(dataArray) {
@@ -127,9 +159,13 @@ function createDataFieldFirst(field) {
           </dl>`;
 }
 
+
+
+
+
 function renderCoronaData(elemForRender, dataArray, dataArrayYestarday) {
   if (dataArrayYestarday.length === 0) renderCoronaDataFirst(elemForRender, dataArray)
-  else elemForRender.insertAdjacentHTML('beforeend', createDataArr(dataArray, dataArrayYestarday));
+  else elemForRender.innerHTML = createDataArr(dataArray, dataArrayYestarday);
 }
 
 function createDataArr(dataArray, dataArrayYestarday) {
@@ -157,7 +193,7 @@ function createDataField(field, fieldYestarday) {
               </dd >
             <dd class="wrapper-data__existing">
               <p>${field?.existing}</p>
-              ${fieldYestarday ? createArrows(field, fieldYestarday, 'existing'):''}
+              ${fieldYestarday ? createArrows(field, fieldYestarday, 'existing') : ''}
               </dd >
           </dl > `;
 }
@@ -165,20 +201,33 @@ function createDataField(field, fieldYestarday) {
 function createArrows(field, fieldYestarday, smartKey) {
   let confirmed = '';
   if (field[smartKey] > fieldYestarday[smartKey]) {
-    confirmed = `<p><i class="fas fa-arrow-up"></i>${(field[smartKey] - fieldYestarday[smartKey])}</p>`
+    confirmed = `<p class="wrapper-data__arrow"><i class="fas fa-arrow-up"></i>${(field[smartKey] - fieldYestarday[smartKey])}</p>`
   }
   if (field[smartKey] < fieldYestarday[smartKey]) {
-    confirmed = `<p><i class="fas fa-arrow-down"></i>${(field[smartKey] - fieldYestarday[smartKey])}</p>`
+    confirmed = `<p class="wrapper-data__arrow"><i class="fas fa-arrow-down"></i>${(field[smartKey] - fieldYestarday[smartKey])}</p>`
   }
   if ((field[smartKey] - fieldYestarday[smartKey]) === 0) {
-    // confirmed = `<p>${(field[smartKey] - fieldYestarday[smartKey])}</p>`
-    confirmed = '<p>-</p>';
+    confirmed = '<p class="wrapper-data__arrow">-</p>';
   }
   return confirmed;
 }
 
-searchFormEl.addEventListener('keyup', e=> {
-  const query = e.target.value.trim().toLowerCase().split(' ').filter(word=>!!word);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+searchFormEl.addEventListener('keyup', e => {
+  const query = e.target.value.trim().toLowerCase().split(' ').filter(word => !!word);
   const searchField = ['uk', 'en'];
   newUkraineSearchFilter = ukraineData.filter(country => {
     return query.every(word => {
@@ -215,8 +264,8 @@ searchFormEl.addEventListener('keyup', e=> {
 
 searchFormEl.addEventListener('submit', e => {
   e.preventDefault();
-  renderCoronaData(wrapperUkraineEl, newUkraineSearchFilter, newUkraineYesterdaySearchFilter);
-  renderCoronaData(wrapperWorldEl, newWorldSearchFilter, newWorldYesterdaySearchFilter);
+  renderCoronaData(renderUkraineEl, newUkraineSearchFilter, newUkraineYesterdaySearchFilter);
+  renderCoronaData(renderWorldEl, newWorldSearchFilter, newWorldYesterdaySearchFilter);
   e.target.reset();
 })
 

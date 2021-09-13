@@ -195,11 +195,15 @@ table {
   left: 0;
   top: 0;
   width: 100%;
-  /* height: 100%; */
   visibility: hidden;
-  background: #292b33;
-
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
+
+/* .wrapper-containerTab__renderUkarine {
+
+} */
 
 .active_tab {
   visibility: visible;
@@ -228,12 +232,19 @@ dd {
 .wrapper-data > dd {
   width: 40%;
   justify-content: flex-end;
+  gap: 10px;
   width: 15%;
 }
 
 .wrapper-data__country {
   width: 40%;
   color: darkgray;
+}
+
+.wrapper-data__arrow {
+  display: flex;
+  gap: 5px;
+  font-size: 12px;
 }
 
 .general-information__confirmed,
